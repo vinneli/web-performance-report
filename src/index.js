@@ -1,6 +1,7 @@
 /**
  * 使用方法：
-	PerformanceReport({
+    import WebPerformance from 'web-performance-report'
+	WebPerformance({
 	  url: 'http://sdfasdf.com',
 	  disabled: false,
 	  reportPage: true,
@@ -20,7 +21,7 @@
 
 	const MARK_USER_FLAG = 'web_performace_markuser';
 	const Mark_USER = markUser();
-	let ReportUrl = '';
+	let ReportUrl, Callback;
 
 	function WebPerformance(options={}, reportCallback=()=>{} ) {
 		const {
@@ -31,6 +32,7 @@
 			reportError = false,
 		} = options;
 		ReportUrl = url;
+		Callback = reportCallback;
 
 		if(disabled) return;
 
@@ -39,16 +41,14 @@
 		}
 
 		window.onload = (e) => {
-			const data = {
-				type: 'performance'
-			};
+			const data = {};
 			if(reportPage) {
 				data.page = getPerformanceInfo();
 			}
 			if(reportResource) {
 				data.resource = getResourceInfo();
 			}
-			reportCallback(data);
+			
 			if(ReportUrl) {
 				reportData(data);
 			}
@@ -71,6 +71,7 @@
         	fetchStart,
         	redirectEnd,
         	redirectStart,
+        	loadEventStart,
         	unloadEventEnd,
         	unloadEventStart,
         	responseEnd,
@@ -112,7 +113,7 @@
         return resources.map((item) => ({
         	name: item.name, 
     		type: item.initiatorType,
-            duration: item.duration.toFixed(2) || 0,
+            duration: item.duration || 0,
             decodedBodySize: item.decodedBodySize || 0,
         }))
     }
@@ -144,6 +145,7 @@
         	setTimeout(() => {
         		const info = {
         			...baseInfo,
+        			// TODO: stack 太长了
         			msg: `[js] ${error && error.stack ? error.stack.toString() : msg}`,
         			info: {
         				resourceUrl: url,
@@ -203,6 +205,8 @@
 
 	// 上报数据
 	function reportData(data) {
+		// TODO: 错误的时候没打印出来
+		Callback(data);
 		if(!ReportUrl || !data) return;
 
 		const reportData = {

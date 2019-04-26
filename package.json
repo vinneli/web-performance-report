@@ -15,7 +15,9 @@
   "bugs": {
     "url": "https://github.com/vanni-li/web-performance-report/issues"
   },
-  "files": ["lib"],
+  "files": [
+    "lib"
+  ],
   "homepage": "https://github.com/vanni-li/web-performance-report#readme",
   "devDependencies": {
     "babel-cli": "^6.6.5",
