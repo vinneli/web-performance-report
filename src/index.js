@@ -4,7 +4,6 @@
 	WebPerformance({
 	  url: 'http://sdfasdf.com',
 	  disabled: false,
-	  reportPage: true,
 	  reportError: true,
 	  reportResource: true
 	}, (data)=>{
@@ -21,18 +20,17 @@
 
 	const MARK_USER_FLAG = 'web_performace_markuser';
 	const Mark_USER = markUser();
-	let ReportUrl, Callback;
+	let ReportUrl, ReportCallback;
 
-	function WebPerformance(options={}, reportCallback=()=>{} ) {
+	function WebPerformance(options={}, callback=()=>{} ) {
 		const {
 			url = '',
 			disabled = false,
-			reportPage = true,
 			reportResource = true,
 			reportError = false,
 		} = options;
 		ReportUrl = url;
-		Callback = reportCallback;
+		ReportCallback = callback;
 
 		if(disabled) return;
 
@@ -41,17 +39,15 @@
 		}
 
 		window.onload = (e) => {
-			const data = {};
-			if(reportPage) {
-				data.page = getPerformanceInfo();
+			const data = {
+				type: 'performance',
+				...getPerformanceInfo()
 			}
 			if(reportResource) {
-				data.resource = getResourceInfo();
+				data.resources = getResourceInfo();
 			}
 			
-			if(ReportUrl) {
-				reportData(data);
-			}
+			reportData(data);
 		};
 
 	}
@@ -137,7 +133,9 @@
                 	resourceUrl: e.target.href || e.target.currentSrc,
         		}
         	}
-            if (e.target !== window) reportData(info);
+            if (e.target !== window) {
+            	reportData(info);
+            }
         }, true);
 
         // js
@@ -145,8 +143,7 @@
         	setTimeout(() => {
         		const info = {
         			...baseInfo,
-        			// TODO: stack 太长了
-        			msg: `[js] ${error && error.stack ? error.stack.toString() : msg}`,
+        			msg: `[js] ${msg}`,
         			info: {
         				resourceUrl: url,
         				line: line
@@ -205,8 +202,7 @@
 
 	// 上报数据
 	function reportData(data) {
-		// TODO: 错误的时候没打印出来
-		Callback(data);
+		ReportCallback(data);
 		if(!ReportUrl || !data) return;
 
 		const reportData = {
