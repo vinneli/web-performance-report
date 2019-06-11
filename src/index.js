@@ -1,17 +1,23 @@
 /**
  * 使用方法：
     import WebPerformance from 'web-performance-report'
+
+    // 使用 GET 上报到指定地址
 	WebPerformance({
-	  url: 'http://sdfasdf.com',
+	  url: 'http://sdfasdf.com',   // 上报的地址
 	  disabled: false,
 	  reportError: true,
 	  reportResource: true
-	}, (data)=>{
-	  featch('http://xxx.com/report', {
-	    type: 'POST',
-	    headers: { 'Content-Type': 'application/json' },
-	    body: JSON.stringify(data)
-	  })
+	})
+
+    // 自定义方法上报
+    WebPerformance({}, (data) => {
+      fetch('http://xxx.com/report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+    })
  */
 // 默认通过Get参数发送数据，reportResource 可能会超过get参数的大小限制，含有 reportResource 建议用自定义回调发送
 
@@ -26,7 +32,7 @@
 		const {
 			url = '',
 			disabled = false,
-			reportResource = true,
+			reportResource = false,
 			reportError = false,
 		} = options;
 		ReportUrl = url;
@@ -39,17 +45,20 @@
 		}
 
 		window.onload = (e) => {
-			const data = {
-				type: 'performance',
-				...getPerformanceInfo()
-			}
-			if(reportResource) {
-				data.resources = getResourceInfo();
-			}
-			
-			reportData(data);
+            // 不延迟 performance.timing.loadEventEnd 会为0
+            window.setTimeout(() => {
+                const data = {
+                    type: 'performance',
+                    url: window.location.href,
+                    ...getPerformanceInfo()
+                }
+                if(reportResource) {
+                    data.resources = getResourceInfo();
+                }
+                
+                reportData(data);
+            }, 200);
 		};
-
 	}
 
 	function getPerformanceInfo() {
@@ -75,7 +84,7 @@
         	domComplete,
         	domInteractive,
         	domLoading,
-        } = performance.timing;
+        } = performance.timing; 
 
         return {
             // DNS解析时间
@@ -118,6 +127,7 @@
 	function bindErrorListener() {
 		const baseInfo = {
 			type: 'error',
+			url: window.location.href,
 			msg: '',
 			info: {}
 		};
