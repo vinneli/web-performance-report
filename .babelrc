@@ -1,14 +1,3 @@
 {
- "presets": ["stage-2"],
- "plugins": [
-    ["transform-object-rest-spread", { "useBuiltIns": true }],
-    ["add-module-exports"]
- ],
- "env": {
-      "test": {
-          "plugins": [
-              "istanbul"
-          ]
-      }
-  }
+ "presets": ["@babel/preset-env"]
 }
