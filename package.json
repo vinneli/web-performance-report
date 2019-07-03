@@ -1,6 +1,6 @@
 {
   "name": "web-performance-report",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "前端性能上报，包括页面性能、错误上报、资源上报",
   "main": "lib/index.js",
   "scripts": {

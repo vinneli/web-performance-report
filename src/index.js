@@ -1,3 +1,4 @@
+"use strict";
 /**
  * 使用方法：
     import WebPerformance from 'web-performance-report'
